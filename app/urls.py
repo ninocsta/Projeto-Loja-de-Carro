@@ -11,6 +11,7 @@ urlpatterns = [
   path('cars/', cars_view, name='cars_list'),
   path('', RedirectView.as_view(url='/cars')),
   path('cars/<int:id>/', view_id_car),
+  path('cars/<int:id>/contato/', view_id_car, name='contato'),
   path('login/new_car/', new_car_view, name='new_car'),
   path('login/', login_user, name='login'),
   path('login/submit', submit_login),

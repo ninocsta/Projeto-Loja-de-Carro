@@ -104,7 +104,7 @@ class CarClientForm(models.Model):
     email = models.EmailField(blank=True, null=True)
     phone = models.IntegerField()
     created_date = models.DateTimeField(auto_now_add=True)
-    car_id = models.ForeignKey(Car, on_delete=models.PROTECT, related_name='car_clients')
-
+    car_id = models.ForeignKey(Car, on_delete=models.DO_NOTHING, related_name='car_clients')
+    mensagem = models.TextField(max_length=2000, null=True, blank=True)
     def __str__(self):
         return self.name

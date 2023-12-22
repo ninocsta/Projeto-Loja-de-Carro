@@ -1,5 +1,6 @@
 from django import forms
 from cars.models import Car, CarClientForm, Photo
+from django.core.mail import EmailMessage
 
 
 class CarModelForm(forms.ModelForm):
@@ -14,19 +15,37 @@ class CarModelForm(forms.ModelForm):
             self.add_error('value', 'Valor mínimo do carro deve ser de R$2.000,00')
         return value
 
-    def clean_factory_year(self):
-        factory_year = self.cleaned_data.get('factory_year')
-        if factory_year < 1975:
-            self.add_error('factory_year', 'Não é possível cadastrar carros com data menor que 1975!')
-        return factory_year
+    def clean_year(self):
+        year = self.cleaned_data.get('year')
+        if year < 1975:
+            self.add_error('year', 'Não é possível cadastrar carros com data menor que 1975!')
+        return year
 
 
 class ClientForm(forms.ModelForm):
-
+    mensagem = forms.CharField(widget=forms.Textarea(attrs={'rows': 2, 'style': 'width: 62.18%;'}))
     class Meta:
         model = CarClientForm
-        fields = ('name', 'email', 'phone',)
+        fields = ('name', 'email', 'phone', 'mensagem')
 
+
+    def send_email(self, car):
+        name = self.cleaned_data.get('name')
+        email = self.cleaned_data.get('email')
+        phone = self.cleaned_data.get('phone')
+        mensagem = self.cleaned_data.get('mensagem')
+        
+        corpo = f" Nome: {name}\n Telefone: {phone}\n Mensagem: {mensagem},\n {car}"
+
+        mail = EmailMessage(
+            subject='Contato do Django Carros',
+            from_email='nino-csta@hotmail.com',
+            to=[email],
+            body=corpo,
+            headers={'Reply-To': 'nino-csta@hotmail.com'}
+                            )
+        mail.send()
+        
 
 class PhotoForm(forms.ModelForm):
     model = Photo

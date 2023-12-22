@@ -4,7 +4,7 @@ from cars.forms import CarModelForm, ClientForm, Photo
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-
+import math
 
 # Create your views here.
 def cars_view(request):
@@ -26,18 +26,27 @@ def view_id_car(request, id):
     images = Photo.objects.filter(car_id=car)
     client_form = ClientForm()
     success_message = ''
+    half = math.ceil(len(car.acessories.all()) / 2)
+    acessories1 = car.acessories.all()[:half]
+    acessories2 = car.acessories.all()[half:]
     if request.method == 'POST':
         client_form = ClientForm(request.POST)
         if client_form.is_valid():
             answers = client_form.save(commit=False)
             answers.car_id = car
             answers.save()
-            client_form = ClientForm()
+            
             success_message = 'Dados salvos com sucesso! Em breve entraremos em contato!'
+            client_form.send_email(car)            
+            client_form = ClientForm()
+        else:
+            messages.error(request, 'Erro ao enviar email')
+    else:
+        client_form = ClientForm()
     return render(
         request,
         'id.html',
-        {'car': car, 'client_form': client_form, 'success_message': success_message, 'images': images},
+        {'car': car, 'client_form': client_form, 'success_message': success_message, 'images': images, 'acessories1': acessories1, 'acessories2': acessories2},
         )
 
 
