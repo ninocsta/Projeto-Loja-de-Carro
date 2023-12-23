@@ -16,7 +16,7 @@ body {
             flex-direction: column;
         }
 
-        .content {
+          .content {
             flex: 1; /* Faz com que o conteúdo ocupe o espaço restante */
         }
 </style>
@@ -28,6 +28,10 @@ body {
     <nav class="navbar navbar-expand-md  navbar-dark bg-dark">
         <div class="container">
             <a href="{% url 'cars_list' %}" class="navbar-brand text-danger"><h1 class="">Vila Costa Veículos</h1></a>
+            {% if user.is_authenticated %}            
+            <h3 class="navbar-text .text-white m-0">Olá, {{ user.username }}</h3>
+            
+            {% endif %}
             <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-label="Expand Navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -40,12 +44,25 @@ body {
                     </li>
 
 
+
+                    {% if user.is_authenticated %}
+                    <li class="navbar-item">
+                        <a href="{% url 'new_car' %}" class="nav-link">
+                            Novo Carro
+                        </a>
+                    </li>
+                    <li class="navbar-item">
+                        <a href="{% url 'logout' %}" class="nav-link">
+                            Sair
+                        </a>
+                    </li>
+                    {% else %}
                     <li class="navbar-item">
                         <a href="{% url 'login' %}" class="nav-link">
                             Login
                         </a>
                     </li>
-
+                    {% endif %}
                 </ul>
             </div>
 
