@@ -1,24 +1,24 @@
 from django.shortcuts import render, redirect
 from cars.models import Car
 from cars.forms import CarModelForm, ClientForm, Photo
-from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.views import View
+from django.views.generic import ListView, CreateView, DetailView
 import math
 
 # Create your views here.
-def cars_view(request):
-    cars = Car.objects.all().order_by('id')
-
-    search = request.GET.get('search')
-    if search:
-        cars = Car.objects.filter(model__icontains=search).order_by('model')
-
-    return render(
-        request,
-        'cars.html',
-        {'cars': cars}
-        )
+class CarsListView(ListView):
+    model = Car
+    template_name = 'cars.html'
+    context_object_name = 'cars'
+    ordering = ['id']
+    def get_queryset(self):
+        cars = super(CarsListView, self).get_queryset()
+        search = self.request.GET.get('search')
+        if search:
+            cars = cars.filter(model__icontains=search).order_by('model')
+        return cars
+    
 
 
 def view_id_car(request, id):
@@ -51,27 +51,43 @@ def view_id_car(request, id):
 
 
 
-def new_car_view(request):
-    if request.method == 'POST':
-        new_car_form = CarModelForm(request.POST, request.FILES)
+class CarDetailView(DetailView):
+    model = Car    
+    template_name = 'id.html'
+    context_object_name = 'car'    
+    form_class = ClientForm
 
-        if new_car_form.is_valid():
-            new_car_instance = new_car_form.save()  # Salve a instância do carro criada
-            images = request.FILES.getlist('photo')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['client_form'] = ClientForm()
+        context['images'] = Photo.objects.filter(car_id=self.object)
+        context['acessories1'] = self.object.acessories.all()[:math.ceil(len(self.object.acessories.all()) / 2)]
+        context['acessories2'] = self.object.acessories.all()[math.ceil(len(self.object.acessories.all()) / 2):]
+        return context
 
-            for image in images:
-                Photo.objects.create(
-                    photo=image,
-                    car=new_car_instance)  # Atribua a instância do carro, não a classe
-
-            return redirect('cars_list')
-    else:
-        new_car_form = CarModelForm()
-
-    return render(request, 'new_car.html', {'new_car_form': new_car_form})
-
-
-def login_user(request):
-    return render(request, 'login.html')
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            answers = form.save(commit=False)
+            answers.car_id = self.object
+            answers.save()
+            messages.success(request, 'Dados salvos com sucesso! Em breve entraremos em contato!')
+            return redirect(self.object.get_absolute_url())
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
 
 
+
+class NewCarView(CreateView):
+    model = Car
+    template_name = 'new_car.html'
+    form_class = CarModelForm
+    success_url = '/cars/'
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        images = self.request.FILES.getlist('photo')
+        for image in images:
+            Photo.objects.create(photo=image, car=self.object)
+        return response

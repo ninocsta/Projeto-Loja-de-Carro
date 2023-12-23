@@ -8,7 +8,17 @@ class CarModelForm(forms.ModelForm):
     class Meta:
         model = Car
         fields = '__all__'
-    
+
+    def __init__(self, *args, **kwargs):
+        super(CarModelForm, self).__init__(*args, **kwargs)
+        self.fields['model'].label = 'Modelo' 
+        self.fields['brand'].label = 'Marca'
+        self.fields['plate'].label = 'Placa'
+        self.fields['value'].label = 'Valor' 
+        self.fields['acessories'].label = 'Acessórios' 
+        self.fields['km_atual'].label = 'Km Atual' 
+
+
     def clean_value(self):
         value = self.cleaned_data.get('value')
         if value < 2000:
@@ -28,26 +38,16 @@ class ClientForm(forms.ModelForm):
         model = CarClientForm
         fields = ('name', 'email', 'phone', 'mensagem')
 
-
-    def send_email(self, car):
-        name = self.cleaned_data.get('name')
-        email = self.cleaned_data.get('email')
-        phone = self.cleaned_data.get('phone')
-        mensagem = self.cleaned_data.get('mensagem')
-        
-        corpo = f" Nome: {name}\n Telefone: {phone}\n Mensagem: {mensagem},\n {car}"
-
-        mail = EmailMessage(
-            subject='Contato do Django Carros',
-            from_email='nino-csta@hotmail.com',
-            to=[email],
-            body=corpo,
-            headers={'Reply-To': 'nino-csta@hotmail.com'}
-                            )
-        mail.send()
+    def __init__(self, *args, **kwargs):
+        super(ClientForm, self).__init__(*args, **kwargs)
+        self.fields['name'].label = 'Nome'
+        self.fields['email'].label = 'Email'
+        self.fields['phone'].label = 'Telefone'
+        self.fields['mensagem'].label = 'Mensagem'
         
 
 class PhotoForm(forms.ModelForm):
     model = Photo
     fields = ('photo',)
     widget = forms.ClearableFileInput(attrs={"allow_multiple_selected": True})
+

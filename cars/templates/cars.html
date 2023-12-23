@@ -26,24 +26,24 @@
         <div class="row g-4 row-cols-1 row-cols-md-2 row-cols-lg-3">
               {% if cars %}
                 {% for car in cars %}
-                  <div class="col">
-                      <div class="card" >
-                          <img src="{{ car.capa.url }}" alt="{{ car.model }} - {{ car.brand }}" class="card-image" style="max-height: 270px;">
-                          <div class="card-body">
+                    <div class="col">
+                        <div class="card" >
+                            <img src="{{ car.capa.url }}" alt="{{ car.model }} - {{ car.brand }}" class="card-image" style="max-height: 270px;">
+                            <div class="card-body">
 
                               <div class="row">
                                   <h3 class="card-title col align-content-between">
-                                      {{ car.brand }} {{ car.model }}
+                                      {{ car.model }}
                                   </h3>
                                   <h5 class="col text-end">{{ car.km_atual }}KM</h5>
                               </div>
                               <div class="row">
-                                  <p class="col fw-bolder">{{ car.ano }}</p>
+                                <p class="col fw-bolder">{{ car.ano|floatformat:0 }}</p>
                                   <p class="card-text text-end col"><a href="/cars/{{car.id}}" class="btn btn-danger text-end">Ver detalhes</a></p>
                               </div>
-                          </div>
-                      </div>
-                  </div>
+                            </div>
+                        </div>
+                    </div>
                 {% endfor %}
                 {% else %}
                   <p class="no-results">Nenhum carro encontrado.</p>
