@@ -1,10 +1,13 @@
 from django import forms
 from cars.models import Car, CarClientForm, Photo
-from django.core.mail import EmailMessage
+from django.forms.models import modelformset_factory
 
 
 class CarModelForm(forms.ModelForm):
-
+    acessories = forms.ModelMultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple(attrs={'style': 'height: 150px;'}),
+        queryset=Car.acessories.through.objects.all()
+    )
     class Meta:
         model = Car
         fields = '__all__'
@@ -49,5 +52,4 @@ class ClientForm(forms.ModelForm):
 class PhotoForm(forms.ModelForm):
     model = Photo
     fields = ('photo',)
-    widget = forms.ClearableFileInput(attrs={"allow_multiple_selected": True})
-
+    widget = forms.ClearableFileInput(attrs={"allow_multiple_selected": True})    

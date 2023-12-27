@@ -3,8 +3,9 @@ from cars.models import Car
 from cars.forms import CarModelForm, ClientForm, Photo
 from django.contrib import messages
 from django.views import View
-from django.views.generic import ListView, CreateView, DetailView
+from django.views.generic import ListView, CreateView, DetailView, UpdateView
 import math
+from django.forms import inlineformset_factory
 
 # Create your views here.
 class CarsListView(ListView):
@@ -77,8 +78,6 @@ class CarDetailView(DetailView):
         else:
             return self.render_to_response(self.get_context_data(form=form))
 
-
-
 class NewCarView(CreateView):
     model = Car
     template_name = 'new_car.html'
@@ -91,3 +90,31 @@ class NewCarView(CreateView):
         for image in images:
             Photo.objects.create(photo=image, car=self.object)
         return response
+
+
+
+class CarUpdateView(UpdateView):
+    model = Car
+    fields = '__all__'
+    template_name = 'car_update.html'
+    success_url = '/cars/'
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        if self.request.POST:
+            data['photos'] = PhotoFormSet(self.request.POST, self.request.FILES, instance=self.object)
+        else:
+            data['photos'] = PhotoFormSet(instance=self.object)
+        return data
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        photos = context['photos']
+        self.object = form.save()
+        if photos.is_valid():
+            photos.instance = self.object
+            photos.save()
+        return super().form_valid(form)
+
+PhotoFormSet = inlineformset_factory(Car, Photo, fields=('photo',), extra=3, can_delete=True)
+

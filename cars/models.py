@@ -83,10 +83,17 @@ def photo_delete(sender, instance, **kwargs):
 pre_delete.connect(photo_delete, sender=Car)
 
 
+
 class Photo(models.Model):
     photo = models.ImageField(upload_to='cars/', blank=True, null=True)
     car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='carimg')
 
+    def save(self, *args, **kwargs):
+        # If photo field is empty and the instance exists in the database, delete the instance
+        if not self.photo and self.pk:
+            self.delete()
+            return
+        super().save(*args, **kwargs)
 
 # Função para excluir fisicamente o arquivo da foto quando o objeto Photo é excluído
 @receiver(pre_delete, sender=Photo)
@@ -96,7 +103,7 @@ def photo_delete(sender, instance, **kwargs):
         if os.path.isfile(instance.photo.path):
             os.remove(instance.photo.path)
 
-
+    
 # Conectar a função de exclusão de fotos ao sinal pre_delete
 pre_delete.connect(photo_delete, sender=Photo)
 
