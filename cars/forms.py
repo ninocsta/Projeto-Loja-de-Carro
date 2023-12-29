@@ -3,14 +3,19 @@ from cars.models import Car, CarClientForm, Photo
 from django.forms.models import modelformset_factory
 
 
+class PhotoForm(forms.ModelForm):
+    model = Photo
+    fields = ('photo',)
+    widget = forms.ClearableFileInput(attrs={"allow_multiple_selected": True})    
+    
+
 class CarModelForm(forms.ModelForm):
-    acessories = forms.ModelMultipleChoiceField(
-        widget=forms.CheckboxSelectMultiple(attrs={'style': 'height: 150px;'}),
-        queryset=Car.acessories.through.objects.all()
-    )
+
     class Meta:
         model = Car
         fields = '__all__'
+
+
 
     def __init__(self, *args, **kwargs):
         super(CarModelForm, self).__init__(*args, **kwargs)
@@ -20,6 +25,9 @@ class CarModelForm(forms.ModelForm):
         self.fields['value'].label = 'Valor' 
         self.fields['acessories'].label = 'Acessórios' 
         self.fields['km_atual'].label = 'Km Atual' 
+        self.fields['acessories'].widget.attrs.update({'size': '7'})
+
+
 
 
     def clean_value(self):
@@ -49,7 +57,5 @@ class ClientForm(forms.ModelForm):
         self.fields['mensagem'].label = 'Mensagem'
         
 
-class PhotoForm(forms.ModelForm):
-    model = Photo
-    fields = ('photo',)
-    widget = forms.ClearableFileInput(attrs={"allow_multiple_selected": True})    
+
+

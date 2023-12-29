@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect
 from cars.models import Car
 from cars.forms import CarModelForm, ClientForm, Photo
 from django.contrib import messages
-from django.views import View
-from django.views.generic import ListView, CreateView, DetailView, UpdateView
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 import math
 from django.forms import inlineformset_factory
 
@@ -78,6 +79,8 @@ class CarDetailView(DetailView):
         else:
             return self.render_to_response(self.get_context_data(form=form))
 
+
+@method_decorator(login_required(login_url='login'), name='dispatch')
 class NewCarView(CreateView):
     model = Car
     template_name = 'new_car.html'
@@ -92,10 +95,10 @@ class NewCarView(CreateView):
         return response
 
 
-
+@method_decorator(login_required(login_url='login'), name='dispatch')
 class CarUpdateView(UpdateView):
     model = Car
-    fields = '__all__'
+    form_class = CarModelForm
     template_name = 'car_update.html'
     success_url = '/cars/'
 
@@ -118,3 +121,9 @@ class CarUpdateView(UpdateView):
 
 PhotoFormSet = inlineformset_factory(Car, Photo, fields=('photo',), extra=3, can_delete=True)
 
+
+@method_decorator(login_required(login_url='login'), name='dispatch')
+class CarDeleteView(DeleteView):
+    model = Car
+    template_name = 'delete.html'
+    success_url = '/cars/'

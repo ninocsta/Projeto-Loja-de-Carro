@@ -40,7 +40,11 @@
                               <div class="row">
                                 <p class="col fw-bolder">{{ car.ano|floatformat:0 }}</p>
                                   <p class="card-text text-end col"><a href="/cars/{{car.id}}" class="btn btn-danger text-end">Detalhes</a></p>
-                                  <p class="card-text text-end "><a href="/cars/{{car.id}}/update" class="btn btn-danger text-end">Editar</a></p>
+                                {% if user.is_authenticated %}
+                                    <p class="card-text text-end "><a href="/cars/{{car.id}}/update" class="btn btn-danger text-end">Editar</a></p>    
+                                    <p class="card-text text-end "><a href="/cars/{{car.id}}/delete" class="btn btn-danger text-end">Delete</a></p>
+                                    
+                                {% endif %}
                               </div>
                             </div>
                         </div>

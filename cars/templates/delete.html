@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+</script>
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-4">
+                Tem certeza que deseja excluir este veículo? {{ car.plate}}
+              </div>
+              <div class="col-2">
+                  <form method="post"> {% csrf_token %}        
+                      <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                      <button type="submit" class="btn btn-primary">Excluir</button>
+                      </div>
+                  </form>
+
+              </div>
+        </div>        
+    </div>
+    {% for accessory in object.acessories.all %}
+    <p>{{ accessory.name }}</p>
+{% endfor %}
+{% endblock %}
